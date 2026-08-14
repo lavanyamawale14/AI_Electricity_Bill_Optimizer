@@ -1,4 +1,5 @@
 from flask import Flask, request, jsonify, render_template, redirect, session
+import os
 import joblib
 import pandas as pd
 import sqlite3
@@ -7,7 +8,7 @@ from werkzeug.security import generate_password_hash, check_password_hash
 app = Flask(__name__)
 
 # Secret key for login sessions
-app.secret_key = "voltaI_secret_key_2026"
+app.secret_key = os.environ.get("SECRET_KEY")
 
 # Load trained ML model
 model = joblib.load("models/electricity_bill_model.pkl")
