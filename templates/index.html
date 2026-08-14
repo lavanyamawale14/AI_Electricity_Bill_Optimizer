@@ -1,0 +1,1206 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>AI Electricity Bill Optimizer</title>
+
+    <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+</head>
+
+<body>
+
+    <!-- Background Decorations -->
+    <div class="background-glow glow-1"></div>
+    <div class="background-glow glow-2"></div>
+
+    <!-- Navigation -->
+    <nav class="navbar">
+
+        <div class="logo">
+            <span class="logo-icon">⚡</span>
+            <span>VoltAI</span>
+        </div>
+
+        <div class="nav-links">
+    <a href="#optimizer">Optimizer</a>
+    <a href="/history">📊 My History</a>
+    <a href="#how-it-works">How It Works</a>
+    <a href="#tips">Energy Tips</a>
+    <a href="/logout">🚪 Logout</a>
+</div>
+
+        <div class="ai-badge">
+    <span class="status-dot"></span>
+    👋 {{ user_name }}
+</div>
+
+    </nav>
+
+
+    <!-- Hero Section -->
+    <section class="hero">
+
+        <div class="hero-content">
+
+            <div class="hero-badge">
+                ⚡ Smart Energy Intelligence
+            </div>
+
+            <h1>
+                Predict Your
+                <span>Electricity Bill</span>
+                Before It Arrives.
+            </h1>
+
+            <p>
+                Use AI to estimate your monthly electricity bill,
+                understand your energy usage, and make smarter
+                decisions to reduce your expenses.
+            </p>
+
+            <div class="hero-stats">
+
+                <div class="stat">
+                    <strong>99.56%</strong>
+                    <span>Model Accuracy</span>
+                </div>
+
+                <div class="stat">
+                    <strong>45K+</strong>
+                    <span>Data Records</span>
+                </div>
+
+                <div class="stat">
+                    <strong>AI</strong>
+                    <span>Powered Prediction</span>
+                </div>
+
+            </div>
+
+        </div>
+
+
+        <!-- Hero Visual -->
+        <div class="hero-visual">
+
+            <div class="energy-card">
+
+                <div class="energy-card-top">
+                    <span>Estimated Monthly Bill</span>
+                    <span class="mini-icon">⚡</span>
+                </div>
+
+                <div class="fake-price">
+                    ₹3,477
+                </div>
+
+                <div class="fake-bar">
+                    <div></div>
+                </div>
+
+                <div class="energy-card-bottom">
+                    <span>AI Prediction</span>
+                    <span>● Live</span>
+                </div>
+
+            </div>
+
+            <div class="floating-card card-one">
+                ⚡ Smart Prediction
+            </div>
+
+            <div class="floating-card card-two">
+                💡 Save Energy
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Optimizer Section -->
+    <section class="optimizer-section" id="optimizer">
+
+        <div class="section-heading">
+
+            <div class="section-label">
+                AI BILL PREDICTOR
+            </div>
+
+            <h2>
+                Tell us about your
+                <span>energy usage</span>
+            </h2>
+
+            <p>
+                Enter your household details and let our AI estimate
+                your monthly electricity bill.
+            </p>
+
+        </div>
+
+
+        <div class="optimizer-card">
+
+            <form id="predictionForm">
+
+                <!-- Appliances -->
+                <div class="form-section">
+
+                    <div class="form-section-title">
+                        <span class="section-icon">🏠</span>
+
+                        <div>
+                            <h3>Appliances</h3>
+                            <p>Enter the number of appliances in your home</p>
+                        </div>
+                    </div>
+
+
+                    <div class="input-grid">
+
+                        <div class="input-group">
+                            <label>🌀 Fans</label>
+                            <input type="number" id="Fan" value="10" min="0" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>❄️ Refrigerators</label>
+                            <input type="number" id="Refrigerator" value="2" min="0" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>❄️ Air Conditioners</label>
+                            <input type="number" id="AirConditioner" value="2" min="0" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>📺 Televisions</label>
+                            <input type="number" id="Television" value="2" min="0" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>🖥️ Monitors</label>
+                            <input type="number" id="Monitor" value="1" min="0" required>
+                        </div>
+
+                        <div class="input-group">
+                            <label>💧 Motor Pumps</label>
+                            <input type="number" id="MotorPump" value="1" min="0" required>
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Usage -->
+                <div class="form-section">
+
+                    <div class="form-section-title">
+
+                        <span class="section-icon">📊</span>
+
+                        <div>
+                            <h3>Usage & Location</h3>
+                            <p>Provide your electricity usage information</p>
+                        </div>
+
+                    </div>
+
+
+                    <div class="input-grid">
+
+                        <div class="input-group">
+                            <label>📅 Month</label>
+
+                            <select id="Month" required>
+
+                                <option value="1">January</option>
+                                <option value="2">February</option>
+                                <option value="3">March</option>
+                                <option value="4">April</option>
+                                <option value="5">May</option>
+                                <option value="6">June</option>
+                                <option value="7">July</option>
+                                <option value="8" selected>August</option>
+                                <option value="9">September</option>
+                                <option value="10">October</option>
+                                <option value="11">November</option>
+                                <option value="12">December</option>
+
+                            </select>
+
+                        </div>
+
+
+  <!-- CITY SEARCHABLE DROPDOWN -->
+<div class="input-group">
+
+    <label>📍 City</label>
+
+    <div class="search-select" id="cityDropdown">
+
+        <input
+            type="text"
+            id="CitySearch"
+            placeholder="🔍 Search your city..."
+            autocomplete="off"
+        >
+
+        <input type="hidden" id="City" required>
+
+        <div class="search-options" id="cityOptions">
+
+            <div class="option">Mumbai</div>
+            <div class="option">Thane</div>
+            <div class="option">Navi Mumbai</div>
+            <div class="option">Pune</div>
+            <div class="option">Nagpur</div>
+            <div class="option">Nashik</div>
+            <div class="option">Aurangabad</div>
+            <div class="option">Kolhapur</div>
+            <div class="option">Solapur</div>
+            <div class="option">Amravati</div>
+
+            <div class="option">New Delhi</div>
+
+            <div class="option">Bengaluru</div>
+            <div class="option">Mysuru</div>
+            <div class="option">Mangaluru</div>
+            <div class="option">Hubli</div>
+            <div class="option">Belagavi</div>
+
+            <div class="option">Chennai</div>
+            <div class="option">Coimbatore</div>
+            <div class="option">Madurai</div>
+            <div class="option">Salem</div>
+            <div class="option">Tiruchirappalli</div>
+            <div class="option">Tirunelveli</div>
+
+            <div class="option">Hyderabad</div>
+            <div class="option">Warangal</div>
+            <div class="option">Nizamabad</div>
+
+            <div class="option">Ahmedabad</div>
+            <div class="option">Surat</div>
+            <div class="option">Vadodara</div>
+            <div class="option">Rajkot</div>
+            <div class="option">Bhavnagar</div>
+
+            <div class="option">Jaipur</div>
+            <div class="option">Jodhpur</div>
+            <div class="option">Udaipur</div>
+            <div class="option">Kota</div>
+            <div class="option">Ajmer</div>
+
+            <div class="option">Lucknow</div>
+            <div class="option">Kanpur</div>
+            <div class="option">Agra</div>
+            <div class="option">Varanasi</div>
+            <div class="option">Prayagraj</div>
+            <div class="option">Ghaziabad</div>
+            <div class="option">Noida</div>
+            <div class="option">Meerut</div>
+
+            <div class="option">Kolkata</div>
+            <div class="option">Howrah</div>
+            <div class="option">Durgapur</div>
+            <div class="option">Siliguri</div>
+
+            <div class="option">Bhopal</div>
+            <div class="option">Indore</div>
+            <div class="option">Gwalior</div>
+            <div class="option">Jabalpur</div>
+            <div class="option">Ujjain</div>
+
+            <div class="option">Patna</div>
+            <div class="option">Gaya</div>
+            <div class="option">Bhagalpur</div>
+
+            <div class="option">Chandigarh</div>
+            <div class="option">Amritsar</div>
+            <div class="option">Ludhiana</div>
+            <div class="option">Jalandhar</div>
+            <div class="option">Patiala</div>
+
+            <div class="option">Gurugram</div>
+            <div class="option">Faridabad</div>
+            <div class="option">Panipat</div>
+            <div class="option">Ambala</div>
+
+            <div class="option">Thiruvananthapuram</div>
+            <div class="option">Kochi</div>
+            <div class="option">Kozhikode</div>
+            <div class="option">Thrissur</div>
+            <div class="option">Kollam</div>
+
+            <div class="option">Visakhapatnam</div>
+            <div class="option">Vijayawada</div>
+            <div class="option">Guntur</div>
+            <div class="option">Tirupati</div>
+
+            <div class="option">Bhubaneswar</div>
+            <div class="option">Cuttack</div>
+            <div class="option">Rourkela</div>
+
+            <div class="option">Ranchi</div>
+            <div class="option">Jamshedpur</div>
+            <div class="option">Dhanbad</div>
+
+            <div class="option">Raipur</div>
+            <div class="option">Bhilai</div>
+            <div class="option">Bilaspur</div>
+
+            <div class="option">Guwahati</div>
+            <div class="option">Dibrugarh</div>
+            <div class="option">Silchar</div>
+
+            <div class="option">Dehradun</div>
+            <div class="option">Haridwar</div>
+            <div class="option">Roorkee</div>
+
+            <div class="option">Panaji</div>
+            <div class="option">Vasco da Gama</div>
+
+            <div class="option">Srinagar</div>
+            <div class="option">Jammu</div>
+
+            <div class="option">Shimla</div>
+            <div class="option">Dharamshala</div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+<!-- ELECTRICITY COMPANY SEARCHABLE DROPDOWN -->
+<div class="input-group">
+
+    <label>⚡ Electricity Company</label>
+
+    <div class="search-select" id="companyDropdown">
+
+        <input
+            type="text"
+            id="CompanySearch"
+            placeholder="🔍 Search electricity company..."
+            autocomplete="off"
+        >
+
+        <input type="hidden" id="Company" required>
+
+        <div class="search-options" id="companyOptions">
+
+            <div class="option">MSEDCL</div>
+            <div class="option">Tata Power</div>
+            <div class="option">Adani Electricity</div>
+            <div class="option">BEST</div>
+
+            <div class="option">BSES Rajdhani Power Limited</div>
+            <div class="option">BSES Yamuna Power Limited</div>
+            <div class="option">
+                Tata Power Delhi Distribution Limited
+            </div>
+
+            <div class="option">Torrent Power</div>
+            <div class="option">UGVCL</div>
+            <div class="option">PGVCL</div>
+            <div class="option">DGVCL</div>
+            <div class="option">MGVCL</div>
+
+            <div class="option">BESCOM</div>
+            <div class="option">MESCOM</div>
+            <div class="option">HESCOM</div>
+            <div class="option">GESCOM</div>
+            <div class="option">CESC Mysore</div>
+
+            <div class="option">TANGEDCO</div>
+
+            <div class="option">TSSPDCL</div>
+            <div class="option">TSNPDCL</div>
+
+            <div class="option">APSPDCL</div>
+            <div class="option">APEPDCL</div>
+
+            <div class="option">KSEB</div>
+
+            <div class="option">WBSEDCL</div>
+            <div class="option">CESC Limited</div>
+
+            <div class="option">JVVNL</div>
+            <div class="option">AVVNL</div>
+            <div class="option">JDVVNL</div>
+
+            <div class="option">UPPCL</div>
+            <div class="option">PVVNL</div>
+            <div class="option">MVVNL</div>
+            <div class="option">DVVNL</div>
+            <div class="option">PuVVNL</div>
+
+            <div class="option">MPPKVVCL</div>
+            <div class="option">MPCZ</div>
+
+            <div class="option">PSPCL</div>
+
+            <div class="option">DHBVN</div>
+            <div class="option">UHBVN</div>
+
+            <div class="option">NBPDCL</div>
+            <div class="option">SBPDCL</div>
+
+            <div class="option">TPCODL</div>
+            <div class="option">TPWODL</div>
+            <div class="option">TPNODL</div>
+            <div class="option">TPSODL</div>
+
+            <div class="option">JBVNL</div>
+
+            <div class="option">CSPDCL</div>
+
+            <div class="option">APDCL</div>
+
+            <div class="option">UPCL</div>
+
+            <div class="option">HPSEBL</div>
+
+            <div class="option">JPDCL</div>
+            <div class="option">KPDCL</div>
+
+            <div class="option">Goa Electricity Department</div>
+
+            <div class="option">Adani Power</div>
+            <div class="option">JSW Energy</div>
+
+        </div>
+
+    </div>
+
+</div>
+
+
+                        <div class="input-group">
+
+                            <label>⏱️ Monthly Usage Hours</label>
+
+                            <input
+                                type="number"
+                                id="MonthlyHours"
+                                value="400"
+                                min="0"
+                                required
+                            >
+
+                        </div>
+
+
+                        <div class="input-group">
+
+                            <label>💰 Tariff Rate (₹/kWh)</label>
+
+                            <input
+                                type="number"
+                                id="TariffRate"
+                                value="8.5"
+                                min="0"
+                                step="0.1"
+                                required
+                            >
+
+                        </div>
+
+                    </div>
+
+                </div>
+
+
+                <!-- Predict Button -->
+
+                <button type="submit" class="predict-button">
+
+                    <span>⚡ Predict My Electricity Bill</span>
+
+                    <span class="button-arrow">→</span>
+
+                </button>
+
+            </form>
+
+
+            <!-- Result -->
+
+            <div class="result-card" id="resultCard">
+
+                <div class="result-icon">
+                    ⚡
+                </div>
+
+                <div class="result-content">
+
+                    <span>YOUR ESTIMATED MONTHLY BILL</span>
+
+                    <div class="result-price" id="predictedBill">
+                        ₹0
+                    </div>
+
+                    <p>
+                        Based on your electricity usage and household details.
+                    </p>
+
+                </div>
+
+            </div>
+
+        </div>
+
+    </section>
+    <!-- Energy Analysis -->
+
+<section class="analysis-section" id="analysis">
+
+    <div class="section-heading">
+
+        <div class="section-label">
+            ENERGY INTELLIGENCE
+        </div>
+
+        <h2>
+            Understand your
+            <span>energy consumption</span>
+        </h2>
+
+        <p>
+            See which appliances are consuming the most estimated
+            energy and get personalized recommendations.
+        </p>
+
+    </div>
+
+
+    <div class="analysis-grid">
+
+        <!-- Total Energy -->
+
+        <div class="analysis-summary">
+
+            <div class="analysis-summary-icon">
+                ⚡
+            </div>
+
+            <div>
+                <span>TOTAL ESTIMATED ENERGY</span>
+
+                <h3 id="totalEnergy">
+                    0 kWh
+                </h3>
+
+                <p>
+                    Estimated monthly consumption
+                </p>
+            </div>
+
+        </div>
+
+
+        <!-- Highest Appliance -->
+
+        <div class="analysis-summary">
+
+            <div class="analysis-summary-icon">
+                🔥
+            </div>
+
+            <div>
+                <span>HIGHEST ENERGY APPLIANCE</span>
+
+                <h3 id="highestAppliance">
+                    —
+                </h3>
+
+                <p id="highestApplianceDetails">
+                    Run a prediction to see your highest consumer.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Appliance Breakdown -->
+
+    <div class="breakdown-card">
+
+        <div class="analysis-card-heading">
+
+            <div>
+                <h3>⚡ Appliance Energy Breakdown</h3>
+
+                <p>
+                    Estimated energy consumption by appliance
+                </p>
+            </div>
+
+        </div>
+
+
+        <div id="applianceBreakdown">
+
+            <div class="empty-analysis">
+                <span>📊</span>
+
+                <p>
+                    Enter your usage details and click
+                    <strong>Predict My Electricity Bill</strong>
+                    to see your energy breakdown.
+                </p>
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- Recommendations -->
+
+    <div class="recommendations-card">
+
+        <div class="analysis-card-heading">
+
+            <div>
+                <h3>💡 Personalized Recommendations</h3>
+
+                <p>
+                    Suggestions based on your energy usage
+                </p>
+            </div>
+
+        </div>
+
+
+        <div id="recommendations">
+
+            <div class="empty-analysis">
+
+                <span>💡</span>
+
+                <p>
+                    Your personalized recommendations will
+                    appear after your prediction.
+                </p>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+
+
+    <!-- How It Works -->
+
+    <section class="how-section" id="how-it-works">
+
+        <div class="section-heading">
+
+            <div class="section-label">
+                HOW IT WORKS
+            </div>
+
+            <h2>
+                Smart prediction in
+                <span>three simple steps</span>
+            </h2>
+
+        </div>
+
+
+        <div class="steps">
+
+            <div class="step-card">
+
+                <div class="step-number">
+                    01
+                </div>
+
+                <div class="step-icon">
+                    📝
+                </div>
+
+                <h3>Enter Your Details</h3>
+
+                <p>
+                    Tell us about your appliances,
+                    location and monthly usage.
+                </p>
+
+            </div>
+
+
+            <div class="step-card">
+
+                <div class="step-number">
+                    02
+                </div>
+
+                <div class="step-icon">
+                    🤖
+                </div>
+
+                <h3>AI Analyzes Data</h3>
+
+                <p>
+                    Our machine learning model analyzes
+                    your electricity usage patterns.
+                </p>
+
+            </div>
+
+
+            <div class="step-card">
+
+                <div class="step-number">
+                    03
+                </div>
+
+                <div class="step-icon">
+                    💰
+                </div>
+
+                <h3>Get Your Prediction</h3>
+
+                <p>
+                    Receive an estimated monthly bill
+                    instantly.
+                </p>
+
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Energy Tips -->
+
+    <section class="tips-section" id="tips">
+
+        <div class="section-heading">
+
+            <div class="section-label">
+                ENERGY SMART
+            </div>
+
+            <h2>
+                Small changes,
+                <span>big savings</span>
+            </h2>
+
+        </div>
+
+
+        <div class="tips-grid">
+
+            <div class="tip-card">
+                <span>❄️</span>
+                <h3>Optimize AC Usage</h3>
+                <p>
+                    Setting your AC around 24–26°C can help
+                    reduce unnecessary electricity consumption.
+                </p>
+            </div>
+
+
+            <div class="tip-card">
+                <span>💡</span>
+                <h3>Switch Off Unused Devices</h3>
+                <p>
+                    Turn off appliances and electronics when
+                    they are not being used.
+                </p>
+            </div>
+
+
+            <div class="tip-card">
+                <span>⚡</span>
+                <h3>Monitor Your Usage</h3>
+                <p>
+                    Track your monthly electricity consumption
+                    to identify high-energy appliances.
+                </p>
+            </div>
+
+        </div>
+
+    </section>
+
+
+    <!-- Footer -->
+
+    <footer>
+
+        <div class="footer-logo">
+            ⚡ VoltAI
+        </div>
+
+        <p>
+            AI-powered electricity bill prediction and energy insights.
+        </p>
+
+        <span>
+            © 2026 VoltAI. Built with Machine Learning.
+        </span>
+
+    </footer>
+
+
+    <!-- Prediction JavaScript -->
+
+    <script>
+
+
+/* =====================================================
+   SEARCHABLE CITY DROPDOWN
+===================================================== */
+
+function setupSearchDropdown(searchId, hiddenId, optionsId) {
+
+    const searchInput = document.getElementById(searchId);
+    const hiddenInput = document.getElementById(hiddenId);
+    const optionsBox = document.getElementById(optionsId);
+
+    if (!searchInput || !hiddenInput || !optionsBox) return;
+
+    const options = optionsBox.querySelectorAll(".option");
+
+    /* Open dropdown when clicked */
+    searchInput.addEventListener("focus", function () {
+        optionsBox.style.display = "block";
+    });
+
+    searchInput.addEventListener("click", function () {
+        optionsBox.style.display = "block";
+    });
+
+    /* Search */
+    searchInput.addEventListener("input", function () {
+
+        const searchText = this.value.toLowerCase();
+
+        optionsBox.style.display = "block";
+
+        options.forEach(function (option) {
+
+            const text = option.textContent.toLowerCase();
+
+            if (text.includes(searchText)) {
+                option.style.display = "block";
+            } else {
+                option.style.display = "none";
+            }
+
+        });
+
+    });
+
+    /* Select option */
+    options.forEach(function (option) {
+
+        option.addEventListener("click", function () {
+
+            searchInput.value = this.textContent.trim();
+
+            hiddenInput.value = this.textContent.trim();
+
+            optionsBox.style.display = "none";
+
+        });
+
+    });
+
+    /* Close when clicking outside */
+    document.addEventListener("click", function (event) {
+
+        if (!searchInput.parentElement.contains(event.target)) {
+
+            optionsBox.style.display = "none";
+
+        }
+
+    });
+
+}
+
+
+/* CITY */
+setupSearchDropdown(
+    "CitySearch",
+    "City",
+    "cityOptions"
+);
+
+
+/* ELECTRICITY COMPANY */
+setupSearchDropdown(
+    "CompanySearch",
+    "Company",
+    "companyOptions"
+);
+
+const form = document.getElementById("predictionForm");
+
+form.addEventListener("submit", async function(event) {
+
+    event.preventDefault();
+
+    const button = document.querySelector(".predict-button");
+
+    button.innerHTML = "<span>⚡ Calculating...</span>";
+
+    const data = {
+
+        Fan: Number(document.getElementById("Fan").value),
+
+        Refrigerator:
+            Number(document.getElementById("Refrigerator").value),
+
+        AirConditioner:
+            Number(document.getElementById("AirConditioner").value),
+
+        Television:
+            Number(document.getElementById("Television").value),
+
+        Monitor:
+            Number(document.getElementById("Monitor").value),
+
+        MotorPump:
+            Number(document.getElementById("MotorPump").value),
+
+        Month:
+            Number(document.getElementById("Month").value),
+
+        City:
+            document.getElementById("City").value,
+
+        Company:
+            document.getElementById("Company").value,
+
+        MonthlyHours:
+            Number(document.getElementById("MonthlyHours").value),
+
+        TariffRate:
+            Number(document.getElementById("TariffRate").value)
+
+    };
+
+    try {
+
+        const response = await fetch("/predict", {
+
+            method: "POST",
+
+            headers: {
+                "Content-Type": "application/json"
+            },
+
+            body: JSON.stringify(data)
+
+        });
+
+        const result = await response.json();
+
+        /* BILL */
+
+        document.getElementById("predictedBill").innerText =
+            "₹" + Number(result.predicted_bill).toLocaleString("en-IN");
+
+        document.getElementById("resultCard").classList.add("show");
+
+
+        /* TOTAL ENERGY */
+
+        document.getElementById("totalEnergy").innerText =
+            Number(result.total_energy).toLocaleString("en-IN") + " kWh";
+
+
+        /* HIGHEST ENERGY APPLIANCE */
+
+        document.getElementById("highestAppliance").innerText =
+            result.highest_appliance;
+
+        document.getElementById("highestApplianceDetails").innerText =
+            Number(result.highest_energy).toLocaleString("en-IN") +
+            " kWh • " +
+            result.highest_percentage +
+            "% of estimated usage";
+
+
+        /* APPLIANCE BREAKDOWN */
+
+        const breakdown =
+            document.getElementById("applianceBreakdown");
+
+        breakdown.innerHTML = "";
+
+        const applianceIcons = {
+
+            "Fan": "🌀",
+
+            "Refrigerator": "🧊",
+
+            "Air Conditioner": "❄️",
+
+            "Television": "📺",
+
+            "Monitor": "🖥️",
+
+            "Motor Pump": "💧"
+
+        };
+
+
+        Object.entries(result.energy_usage).forEach(
+            ([appliance, energy]) => {
+
+                const percentage =
+                    result.energy_percentages[appliance];
+
+                const row =
+                    document.createElement("div");
+
+                row.className = "appliance-row";
+
+                row.innerHTML = `
+
+                    <div class="appliance-info">
+
+                        <div class="appliance-name">
+
+                            <span>
+                                ${applianceIcons[appliance] || "⚡"}
+                            </span>
+
+                            <span>
+                                ${appliance}
+                            </span>
+
+                        </div>
+
+                        <div class="appliance-value">
+
+                            ${Number(energy).toLocaleString("en-IN")}
+                            kWh
+                            •
+                            ${percentage}%
+
+                        </div>
+
+                    </div>
+
+                    <div class="appliance-bar">
+
+                        <div
+                            class="appliance-fill"
+                            style="width: ${percentage}%"
+                        ></div>
+
+                    </div>
+
+                `;
+
+                breakdown.appendChild(row);
+
+            }
+        );
+
+
+        /* RECOMMENDATIONS */
+
+        const recommendationsContainer =
+            document.getElementById("recommendations");
+
+        recommendationsContainer.innerHTML = "";
+
+        result.recommendations.forEach(
+            recommendation => {
+
+                const item =
+                    document.createElement("div");
+
+                item.className =
+                    "recommendation-item";
+
+                item.innerHTML = `
+
+                    <div class="recommendation-icon">
+
+                        ${recommendation.icon}
+
+                    </div>
+
+                    <div>
+
+                        <h4>
+                            ${recommendation.title}
+                        </h4>
+
+                        <p>
+                            ${recommendation.text}
+                        </p>
+
+                    </div>
+
+                `;
+
+                recommendationsContainer.appendChild(item);
+
+            }
+        );
+
+
+        /* SCROLL TO ANALYSIS */
+
+        document.getElementById("analysis").scrollIntoView({
+
+            behavior: "smooth",
+
+            block: "start"
+
+        });
+
+    }
+
+    catch (error) {
+
+        alert(
+            "Something went wrong. Please make sure the Flask server is running."
+        );
+
+        console.error(error);
+
+    }
+
+    button.innerHTML = `
+
+        <span>
+            ⚡ Predict My Electricity Bill
+        </span>
+
+        <span class="button-arrow">
+            →
+        </span>
+
+    `;
+
+});
+
+
+    </script>
+
+</body>
+</html>

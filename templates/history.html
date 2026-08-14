@@ -1,0 +1,1253 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Prediction History - VoltAI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+        /* =====================================================
+   BILL ANALYTICS
+===================================================== */
+
+.bill-analytics {
+    margin-bottom: 35px;
+}
+
+.analytics-heading {
+    margin-bottom: 22px;
+}
+
+.analytics-heading .section-label {
+    color: #8b6cff;
+    font-size: 12px;
+    font-weight: 800;
+    letter-spacing: 2px;
+    margin-bottom: 8px;
+}
+
+.analytics-heading h2 {
+    margin: 0 0 8px;
+    font-size: 30px;
+    font-weight: 800;
+    color: #ffffff;
+}
+
+.analytics-heading h2 span {
+    color: #9b87ff;
+}
+
+.analytics-heading p {
+    margin: 0;
+    color: #b8b8c7;
+}
+
+.charts-grid {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 25px;
+}
+
+.chart-card {
+    background: rgba(255, 255, 255, 0.08);
+    border: 1px solid rgba(255, 255, 255, 0.12);
+    border-radius: 22px;
+    padding: 25px;
+    box-shadow: 0 15px 40px rgba(0, 0, 0, 0.15);
+    backdrop-filter: blur(10px);
+}
+
+.chart-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    margin-bottom: 20px;
+}
+
+.chart-header h3 {
+    margin: 0 0 5px;
+    color: #ffffff;
+    font-size: 19px;
+}
+
+.chart-header p {
+    margin: 0;
+    color: #b8b8c7;
+    font-size: 13px;
+}
+
+.chart-icon {
+    width: 42px;
+    height: 42px;
+    border-radius: 12px;
+    background: rgba(124, 92, 255, 0.18);
+
+    display: flex;
+    align-items: center;
+    justify-content: center;
+
+    font-size: 20px;
+}
+
+.chart-container {
+    position: relative;
+    height: 300px;
+}
+
+@media (max-width: 900px) {
+
+    .charts-grid {
+        grid-template-columns: 1fr;
+    }
+
+}
+
+        /* =====================================================
+           HISTORY PAGE - DARK THEME
+        ===================================================== */
+
+        .history-page {
+            min-height: 100vh;
+            padding: 55px 7%;
+            color: #ffffff;
+        }
+
+
+        /* =====================================================
+           NAVBAR - SAME AS HOME PAGE
+        ===================================================== */
+
+        .navbar .logo,
+        .navbar .logo span {
+            color: #ffffff !important;
+        }
+
+        .navbar .nav-links a {
+            color: #ffffff !important;
+            text-decoration: none;
+        }
+
+        .navbar .nav-links a:hover {
+            color: #b8a7ff !important;
+        }
+
+        .navbar .ai-badge {
+            color: #ffffff !important;
+        }
+
+        .navbar .status-dot {
+            background: #7c5cff !important;
+        }
+
+
+        /* =====================================================
+           HEADER
+        ===================================================== */
+
+        .history-header {
+            margin-bottom: 32px;
+        }
+
+        .history-header .label {
+            color: #9b85ff !important;
+            font-size: 13px;
+            font-weight: 800;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .history-header h1 {
+            margin: 0 0 10px;
+            font-size: 42px;
+            color: #ffffff !important;
+            font-weight: 800;
+        }
+
+        .history-header h1 span {
+            color: #9b85ff !important;
+        }
+
+        .history-header p {
+            margin: 0;
+            color: #c4c4d4 !important;
+            font-size: 16px;
+        }
+
+
+        /* =====================================================
+           ACCOUNT CARD
+        ===================================================== */
+
+        .account-card {
+            background: rgba(255, 255, 255, 0.07) !important;
+
+            border: 1px solid rgba(255, 255, 255, 0.12);
+
+            border-radius: 20px;
+
+            padding: 22px 25px;
+
+            margin-bottom: 30px;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            box-shadow: 0 10px 30px rgba(0, 0, 0, 0.15);
+        }
+
+        .account-info {
+            display: flex;
+
+            align-items: center;
+
+            gap: 15px;
+        }
+
+        .profile-icon {
+            width: 52px;
+            height: 52px;
+
+            border-radius: 50%;
+
+            background: linear-gradient(
+                135deg,
+                #7c5cff,
+                #5b8cff
+            );
+
+            color: #ffffff !important;
+
+            display: flex;
+
+            align-items: center;
+
+            justify-content: center;
+
+            font-size: 23px;
+        }
+
+        .account-info h3 {
+            margin: 0;
+
+            color: #ffffff !important;
+
+            font-size: 18px;
+        }
+
+        .account-info p {
+            margin: 5px 0 0;
+
+            color: #bdbdcc !important;
+
+            font-size: 14px;
+        }
+
+
+        /* =====================================================
+           NEW PREDICTION BUTTON
+        ===================================================== */
+
+        .back-button {
+            text-decoration: none;
+
+            padding: 11px 18px;
+
+            border-radius: 10px;
+
+            background: rgba(124, 92, 255, 0.15) !important;
+
+            color: #b8a7ff !important;
+
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+        .back-button:hover {
+            background: rgba(124, 92, 255, 0.25) !important;
+
+            transform: translateY(-1px);
+        }
+
+
+        /* =====================================================
+           HISTORY CARD
+           WHITE TABLE CARD
+        ===================================================== */
+
+        .history-card {
+            background: #ffffff !important;
+
+            border: 1px solid #e5e7eb;
+
+            border-radius: 22px;
+
+            padding: 25px;
+
+            box-shadow: 0 12px 35px rgba(0, 0, 0, 0.15);
+
+            overflow-x: auto;
+
+            color: #111827 !important;
+        }
+
+
+        /* =====================================================
+           HISTORY CARD HEADER
+        ===================================================== */
+
+        .history-card-header {
+            display: flex;
+
+            align-items: center;
+
+            justify-content: space-between;
+
+            margin-bottom: 22px;
+        }
+
+        .history-card-header h2 {
+            margin: 0;
+
+            color: #111827 !important;
+
+            font-size: 22px;
+
+            font-weight: 800;
+        }
+
+        .prediction-count {
+            background: #f0edff !important;
+
+            color: #5b3fd4 !important;
+
+            padding: 7px 13px;
+
+            border-radius: 20px;
+
+            font-size: 13px;
+
+            font-weight: 800;
+
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           TABLE
+        ===================================================== */
+
+        .history-card table {
+            width: 100%;
+
+            border-collapse: separate;
+
+            border-spacing: 0;
+
+            min-width: 850px;
+
+            color: #111827 !important;
+        }
+
+
+        /* TABLE HEADER */
+
+        .history-card th {
+            text-align: left;
+
+            padding: 15px;
+
+            background: #f5f6fa !important;
+
+            color: #374151 !important;
+
+            font-size: 12px;
+
+            text-transform: uppercase;
+
+            letter-spacing: 0.6px;
+
+            font-weight: 800;
+
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+
+        /* TABLE CELLS */
+
+        .history-card td {
+            padding: 18px 15px;
+
+            background: #ffffff !important;
+
+            color: #111827 !important;
+
+            border-bottom: 1px solid #eeeeee;
+
+            font-size: 14px;
+
+            font-weight: 500;
+        }
+
+
+        /* ROW HOVER */
+
+        .history-card tbody tr {
+            transition: 0.2s;
+        }
+
+        .history-card tbody tr:hover td {
+            background: #faf9ff !important;
+        }
+
+
+        /* =====================================================
+           BILL
+        ===================================================== */
+
+        .history-card .bill {
+            color: #5b3fd4 !important;
+
+            font-size: 17px;
+
+            font-weight: 800;
+
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           ENERGY
+        ===================================================== */
+
+        .history-card .energy {
+            color: #111827 !important;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           APPLIANCE BADGE
+        ===================================================== */
+
+        .history-card .appliance-badge {
+            display: inline-flex;
+
+            align-items: center;
+
+            gap: 6px;
+
+            padding: 7px 12px;
+
+            border-radius: 20px;
+
+            background: #fff4e8 !important;
+
+            color: #b45309 !important;
+
+            font-size: 13px;
+
+            font-weight: 700;
+
+            white-space: nowrap;
+        }
+
+
+        /* =====================================================
+           EMPTY HISTORY
+        ===================================================== */
+
+        .empty-history {
+            text-align: center;
+
+            padding: 75px 20px;
+
+            color: #111827 !important;
+        }
+
+        .empty-history-icon {
+            font-size: 55px;
+
+            margin-bottom: 15px;
+        }
+
+        .empty-history h2 {
+            margin: 0 0 8px;
+
+            color: #111827 !important;
+
+            font-size: 24px;
+        }
+
+        .empty-history p {
+            margin-bottom: 25px;
+
+            color: #6b7280 !important;
+        }
+
+        .predict-now {
+            display: inline-block;
+
+            padding: 12px 22px;
+
+            background: linear-gradient(
+                135deg,
+                #7c5cff,
+                #5b8cff
+            );
+
+            color: #ffffff !important;
+
+            text-decoration: none;
+
+            border-radius: 10px;
+
+            font-weight: 700;
+
+            transition: 0.2s;
+        }
+
+        .predict-now:hover {
+            transform: translateY(-2px);
+        }
+
+
+        /* =====================================================
+           RESPONSIVE
+        ===================================================== */
+
+        @media (max-width: 700px) {
+
+            .history-page {
+                padding: 35px 5%;
+            }
+
+            .history-header h1 {
+                font-size: 32px;
+            }
+
+            .account-card {
+                flex-direction: column;
+
+                align-items: flex-start;
+
+                gap: 18px;
+            }
+
+            .history-card {
+                padding: 18px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+
+<!-- =====================================================
+     BACKGROUND
+===================================================== -->
+
+<div class="background-glow glow-1"></div>
+
+<div class="background-glow glow-2"></div>
+
+
+<!-- =====================================================
+     NAVBAR
+===================================================== -->
+
+<nav class="navbar">
+
+
+    <!-- LOGO -->
+
+    <div class="logo">
+
+        <span class="logo-icon">
+            ⚡
+        </span>
+
+        <span>
+            VoltAI
+        </span>
+
+    </div>
+
+
+    <!-- NAVIGATION -->
+
+    <div class="nav-links">
+
+        <a href="/">
+            Optimizer
+        </a>
+
+        <a href="/history">
+            📊 My History
+        </a>
+
+        <a href="/logout">
+            🚪 Logout
+        </a>
+
+    </div>
+
+
+    <!-- USER -->
+
+    <div class="ai-badge">
+
+        <span class="status-dot"></span>
+
+        👋 {{ user_name }}
+
+    </div>
+
+
+</nav>
+
+
+
+<!-- =====================================================
+     HISTORY PAGE
+===================================================== -->
+
+<section class="history-page">
+
+
+    <!-- =================================================
+         PAGE HEADER
+    ================================================= -->
+
+    <div class="history-header">
+
+        <div class="label">
+            MY ACCOUNT
+        </div>
+
+        <h1>
+
+            Your
+
+            <span>
+                Prediction History
+            </span>
+
+        </h1>
+
+        <p>
+
+            View your previous electricity bill predictions
+            and energy consumption.
+
+        </p>
+
+    </div>
+
+
+
+    <!-- =================================================
+         ACCOUNT CARD
+    ================================================= -->
+
+    <div class="account-card">
+
+
+        <div class="account-info">
+
+
+            <div class="profile-icon">
+
+                👤
+
+            </div>
+
+
+            <div>
+
+                <h3>
+
+                    {{ user_name }}
+
+                </h3>
+
+                <p>
+
+                    Your personal electricity insights
+
+                </p>
+
+            </div>
+
+
+        </div>
+
+
+
+        <a href="/" class="back-button">
+
+            ⚡ New Prediction
+
+        </a>
+
+
+    </div>
+
+
+
+    <!-- =================================================
+         HISTORY TABLE CARD
+    ================================================= -->
+<!-- =====================================================
+     BILL ANALYTICS
+===================================================== -->
+
+<section class="bill-analytics">
+
+    <div class="analytics-heading">
+
+        <div class="section-label">
+            BILL ANALYTICS
+        </div>
+
+        <h2>
+            Your <span>Electricity Bill Trends</span>
+        </h2>
+
+        <p>
+            Track your monthly and yearly estimated electricity bills.
+        </p>
+
+    </div>
+
+
+    <div class="charts-grid">
+
+        <!-- MONTHLY BILL CHART -->
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <div>
+                    <h3>📅 Monthly Bill</h3>
+
+                    <p>
+                        Your estimated bill for each month
+                    </p>
+                </div>
+
+                <div class="chart-icon">
+                    📈
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+                <canvas id="monthlyBillChart"></canvas>
+            </div>
+
+        </div>
+
+
+        <!-- YEARLY BILL CHART -->
+
+        <div class="chart-card">
+
+            <div class="chart-header">
+
+                <div>
+                    <h3>📊 Yearly Bill</h3>
+
+                    <p>
+                        Total estimated bill by year
+                    </p>
+                </div>
+
+                <div class="chart-icon">
+                    💰
+                </div>
+
+            </div>
+
+            <div class="chart-container">
+                <canvas id="yearlyBillChart"></canvas>
+            </div>
+
+        </div>
+
+    </div>
+
+</section>
+    <div class="history-card">
+
+
+        <!-- CARD HEADER -->
+
+        <div class="history-card-header">
+
+            <h2>
+
+                📊 Previous Predictions
+
+            </h2>
+
+
+            <span class="prediction-count">
+
+                {{ predictions|length }}
+
+                {% if predictions|length == 1 %}
+
+                    Prediction
+
+                {% else %}
+
+                    Predictions
+
+                {% endif %}
+
+            </span>
+
+        </div>
+
+
+
+        <!-- =================================================
+             PREDICTIONS EXIST
+        ================================================= -->
+
+        {% if predictions %}
+
+
+        <table>
+
+
+            <!-- TABLE HEADER -->
+
+            <thead>
+
+                <tr>
+
+                    <th>
+                        Date
+                    </th>
+
+                    <th>
+                        Month
+                    </th>
+
+                    <th>
+                        City
+                    </th>
+
+                    <th>
+                        Bill
+                    </th>
+
+                    <th>
+                        Energy
+                    </th>
+
+                    <th>
+                        Highest Appliance
+                    </th>
+
+                </tr>
+
+            </thead>
+
+
+
+            <!-- TABLE BODY -->
+
+            <tbody>
+
+
+                {% for prediction in predictions %}
+
+
+                <tr>
+
+
+                    <!-- DATE -->
+
+                    <td>
+
+                        📅
+
+                        {{ prediction["prediction_date"] }}
+
+                    </td>
+
+
+
+                    <!-- MONTH -->
+
+                    <td>
+
+                        {% set months = {
+
+                            1:"January",
+                            2:"February",
+                            3:"March",
+                            4:"April",
+                            5:"May",
+                            6:"June",
+                            7:"July",
+                            8:"August",
+                            9:"September",
+                            10:"October",
+                            11:"November",
+                            12:"December"
+
+                        } %}
+
+                        {{ months[prediction["month"]|int] }}
+
+                    </td>
+
+
+
+                    <!-- CITY -->
+
+                    <td>
+
+                        📍
+
+                        {{ prediction["city"] }}
+
+                    </td>
+
+
+
+                    <!-- BILL -->
+
+                    <td class="bill">
+
+                        ₹{{ "{:,.2f}".format(
+                            prediction["predicted_bill"]
+                        ) }}
+
+                    </td>
+
+
+
+                    <!-- ENERGY -->
+
+                    <td class="energy">
+
+                        ⚡
+
+                        {{ "{:,.2f}".format(
+                            prediction["total_energy"]
+                        ) }}
+
+                        kWh
+
+                    </td>
+
+
+
+                    <!-- HIGHEST APPLIANCE -->
+
+                    <td>
+
+                        <span class="appliance-badge">
+
+
+                            {% if prediction["highest_appliance"] == "Air Conditioner" %}
+
+                                ❄️
+
+                            {% elif prediction["highest_appliance"] == "Fan" %}
+
+                                🌀
+
+                            {% elif prediction["highest_appliance"] == "Refrigerator" %}
+
+                                🧊
+
+                            {% elif prediction["highest_appliance"] == "Television" %}
+
+                                📺
+
+                            {% elif prediction["highest_appliance"] == "Monitor" %}
+
+                                🖥️
+
+                            {% elif prediction["highest_appliance"] == "Motor Pump" %}
+
+                                💧
+
+                            {% else %}
+
+                                ⚡
+
+                            {% endif %}
+
+
+                            {{ prediction["highest_appliance"] }}
+
+
+                        </span>
+
+                    </td>
+
+
+                </tr>
+
+
+                {% endfor %}
+
+
+            </tbody>
+
+
+        </table>
+
+
+        <!-- =================================================
+             NO PREDICTIONS
+        ================================================= -->
+
+        {% else %}
+
+
+        <div class="empty-history">
+
+
+            <div class="empty-history-icon">
+
+                📊
+
+            </div>
+
+
+            <h2>
+
+                No Predictions Yet
+
+            </h2>
+
+
+            <p>
+
+                Your electricity bill predictions will appear
+                here after you make your first prediction.
+
+            </p>
+
+
+            <a href="/" class="predict-now">
+
+                ⚡ Make Your First Prediction
+
+            </a>
+
+
+        </div>
+
+
+        {% endif %}
+
+
+    </div>
+
+
+</section>
+
+<!-- Chart.js -->
+
+<script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+
+<script>
+
+    // =====================================================
+    // MONTHLY BILL DATA
+    // =====================================================
+
+    const monthlyLabels = [
+        {% for item in monthly_summary %}
+            "{{ item['month_key'] }}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const monthlyBills = [
+        {% for item in monthly_summary %}
+            {{ item['total_bill'] or 0 }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+
+    // =====================================================
+    // YEARLY BILL DATA
+    // =====================================================
+
+    const yearlyLabels = [
+        {% for item in yearly_summary %}
+            "{{ item['year'] }}"{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+    const yearlyBills = [
+        {% for item in yearly_summary %}
+            {{ item['total_bill'] or 0 }}{% if not loop.last %},{% endif %}
+        {% endfor %}
+    ];
+
+
+    // =====================================================
+    // MONTHLY CHART
+    // =====================================================
+
+    const monthlyCtx =
+        document.getElementById("monthlyBillChart");
+
+    new Chart(monthlyCtx, {
+
+        type: "line",
+
+        data: {
+
+            labels: monthlyLabels,
+
+            datasets: [{
+
+                label: "Monthly Bill (₹)",
+
+                data: monthlyBills,
+
+                borderWidth: 3,
+
+                tension: 0.4,
+
+                fill: true
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    display: false
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        callback: function(value) {
+                            return "₹" +
+                                value.toLocaleString("en-IN");
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+
+    // =====================================================
+    // YEARLY CHART
+    // =====================================================
+
+    const yearlyCtx =
+        document.getElementById("yearlyBillChart");
+
+    new Chart(yearlyCtx, {
+
+        type: "bar",
+
+        data: {
+
+            labels: yearlyLabels,
+
+            datasets: [{
+
+                label: "Yearly Bill (₹)",
+
+                data: yearlyBills,
+
+                borderWidth: 1
+
+            }]
+
+        },
+
+        options: {
+
+            responsive: true,
+
+            maintainAspectRatio: false,
+
+            plugins: {
+
+                legend: {
+                    display: false
+                }
+
+            },
+
+            scales: {
+
+                y: {
+
+                    beginAtZero: true,
+
+                    ticks: {
+
+                        callback: function(value) {
+                            return "₹" +
+                                value.toLocaleString("en-IN");
+                        }
+
+                    }
+
+                }
+
+            }
+
+        }
+
+    });
+
+</script>
+</body>
+
+</html>

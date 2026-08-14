@@ -1,0 +1,679 @@
+<!DOCTYPE html>
+<html lang="en">
+
+<head>
+
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+    <title>Yearly Summary - VoltAI</title>
+
+    <link rel="stylesheet"
+          href="{{ url_for('static', filename='css/style.css') }}">
+
+    <style>
+
+        .summary-page {
+            min-height: 100vh;
+            padding: 50px 7%;
+            color: #111827;
+        }
+
+        .summary-header {
+            text-align: center;
+            margin-bottom: 35px;
+        }
+
+        .summary-label {
+            color: #6d4aff;
+            font-size: 13px;
+            font-weight: 700;
+            letter-spacing: 2px;
+            margin-bottom: 10px;
+        }
+
+        .summary-header h1 {
+            font-size: 42px;
+            margin: 0;
+            color: #111827;
+        }
+
+        .summary-header h1 span {
+            color: #6d4aff;
+        }
+
+        .summary-header p {
+            color: #6b7280;
+            margin-top: 12px;
+        }
+
+        /* ACCOUNT BAR */
+
+        .account-bar {
+            background: white;
+            border-radius: 18px;
+            padding: 18px 25px;
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+            margin-bottom: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        }
+
+        .account-name {
+            font-weight: 700;
+            color: #111827;
+        }
+
+        .account-email {
+            font-size: 13px;
+            color: #6b7280;
+        }
+
+        .account-buttons {
+            display: flex;
+            gap: 10px;
+        }
+
+        .summary-button {
+            text-decoration: none;
+            padding: 10px 17px;
+            border-radius: 10px;
+            font-weight: 600;
+            font-size: 14px;
+            background: #f3f0ff;
+            color: #5b3fd4;
+        }
+
+        .summary-button:hover {
+            background: #e9e3ff;
+        }
+
+        /* STAT CARDS */
+
+        .summary-grid {
+            display: grid;
+            grid-template-columns: repeat(4, 1fr);
+            gap: 20px;
+            margin-bottom: 30px;
+        }
+
+        .summary-card {
+            background: white;
+            border-radius: 20px;
+            padding: 25px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        }
+
+        .summary-card-icon {
+            width: 48px;
+            height: 48px;
+            border-radius: 14px;
+            background: #f0ebff;
+            display: flex;
+            align-items: center;
+            justify-content: center;
+            font-size: 23px;
+            margin-bottom: 18px;
+        }
+
+        .summary-card span {
+            display: block;
+            color: #6b7280;
+            font-size: 12px;
+            font-weight: 700;
+            letter-spacing: 1px;
+        }
+
+        .summary-card h2 {
+            margin: 8px 0 0;
+            color: #111827;
+            font-size: 28px;
+        }
+
+        /* CHART */
+
+        .chart-card {
+            background: white;
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+        }
+
+        .chart-header {
+            margin-bottom: 25px;
+        }
+
+        .chart-header h2 {
+            margin: 0;
+            color: #111827;
+        }
+
+        .chart-header p {
+            color: #6b7280;
+            margin-top: 6px;
+        }
+
+        .chart {
+            height: 300px;
+            display: flex;
+            align-items: flex-end;
+            gap: 12px;
+            padding: 20px 5px 0;
+            border-bottom: 1px solid #e5e7eb;
+        }
+
+        .bar-container {
+            flex: 1;
+            height: 100%;
+            display: flex;
+            flex-direction: column;
+            justify-content: flex-end;
+            align-items: center;
+        }
+
+        .bar-value {
+            font-size: 11px;
+            color: #5b3fd4;
+            margin-bottom: 6px;
+            font-weight: 700;
+        }
+
+        .bar {
+            width: 65%;
+            min-height: 3px;
+            border-radius: 8px 8px 0 0;
+            background: linear-gradient(
+                to top,
+                #6d4aff,
+                #a78bfa
+            );
+            transition: 0.3s;
+        }
+
+        .bar:hover {
+            transform: translateY(-5px);
+        }
+
+        .bar-label {
+            margin-top: 10px;
+            font-size: 11px;
+            color: #6b7280;
+        }
+
+        /* ENERGY SECTION */
+
+        .energy-card {
+            background: white;
+            border-radius: 22px;
+            padding: 30px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+            margin-bottom: 30px;
+        }
+
+        .energy-card h2 {
+            color: #111827;
+            margin-top: 0;
+        }
+
+        .energy-card p {
+            color: #6b7280;
+        }
+
+        .energy-highlight {
+            display: flex;
+            align-items: center;
+            gap: 20px;
+            margin-top: 20px;
+            padding: 20px;
+            background: #f8f7ff;
+            border-radius: 15px;
+        }
+
+        .energy-highlight-icon {
+            font-size: 35px;
+        }
+
+        .energy-highlight h3 {
+            margin: 0;
+            color: #111827;
+            font-size: 26px;
+        }
+
+        .energy-highlight span {
+            color: #6b7280;
+            font-size: 13px;
+        }
+
+        /* EMPTY */
+
+        .empty-summary {
+            background: white;
+            padding: 70px 30px;
+            text-align: center;
+            border-radius: 22px;
+            box-shadow: 0 10px 30px rgba(0,0,0,0.06);
+        }
+
+        .empty-summary-icon {
+            font-size: 55px;
+            margin-bottom: 15px;
+        }
+
+        .empty-summary h2 {
+            color: #111827;
+        }
+
+        .empty-summary p {
+            color: #6b7280;
+        }
+
+        /* RESPONSIVE */
+
+        @media (max-width: 900px) {
+
+            .summary-grid {
+                grid-template-columns: repeat(2, 1fr);
+            }
+
+        }
+
+        @media (max-width: 600px) {
+
+            .summary-page {
+                padding: 30px 5%;
+            }
+
+            .summary-header h1 {
+                font-size: 32px;
+            }
+
+            .summary-grid {
+                grid-template-columns: 1fr;
+            }
+
+            .account-bar {
+                flex-direction: column;
+                gap: 15px;
+                align-items: flex-start;
+            }
+
+            .chart {
+                gap: 5px;
+            }
+
+            .bar-label {
+                font-size: 8px;
+            }
+
+        }
+
+    </style>
+
+</head>
+
+
+<body>
+
+<div class="background-glow glow-1"></div>
+<div class="background-glow glow-2"></div>
+
+
+<!-- NAVBAR -->
+
+<nav class="navbar">
+
+    <div class="logo">
+
+        <span class="logo-icon">⚡</span>
+
+        <span>VoltAI</span>
+
+    </div>
+
+
+    <div class="nav-links">
+
+        <a href="/">
+            ⚡ Optimizer
+        </a>
+
+        <a href="/history">
+            📊 My History
+        </a>
+
+        <a href="/summary">
+            📈 Yearly Summary
+        </a>
+
+        <a href="/logout">
+            🚪 Logout
+        </a>
+
+    </div>
+
+
+    <div class="ai-badge">
+
+        <span class="status-dot"></span>
+
+        👋 {{ user_name }}
+
+    </div>
+
+</nav>
+
+
+<!-- SUMMARY -->
+
+<section class="summary-page">
+
+
+    <div class="summary-header">
+
+        <div class="summary-label">
+            ENERGY ANALYTICS
+        </div>
+
+        <h1>
+            Your <span>Yearly Summary</span>
+        </h1>
+
+        <p>
+            Understand your electricity spending and energy consumption
+            from your prediction history.
+        </p>
+
+    </div>
+
+
+    <!-- ACCOUNT -->
+
+    <div class="account-bar">
+
+        <div>
+
+            <div class="account-name">
+                👤 {{ user_name }}
+            </div>
+
+            <div class="account-email">
+                Personal energy dashboard
+            </div>
+
+        </div>
+
+
+        <div class="account-buttons">
+
+            <a href="/history" class="summary-button">
+                📊 View History
+            </a>
+
+            <a href="/" class="summary-button">
+                ⚡ New Prediction
+            </a>
+
+        </div>
+
+    </div>
+
+
+    {% if total_predictions > 0 %}
+
+
+    <!-- STAT CARDS -->
+
+    <div class="summary-grid">
+
+
+        <div class="summary-card">
+
+            <div class="summary-card-icon">
+                📊
+            </div>
+
+            <span>
+                TOTAL PREDICTIONS
+            </span>
+
+            <h2>
+                {{ total_predictions }}
+            </h2>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-card-icon">
+                💰
+            </div>
+
+            <span>
+                TOTAL PREDICTED BILL
+            </span>
+
+            <h2>
+                ₹{{ "{:,.2f}".format(total_bill) }}
+            </h2>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-card-icon">
+                📈
+            </div>
+
+            <span>
+                AVERAGE BILL
+            </span>
+
+            <h2>
+                ₹{{ "{:,.2f}".format(average_bill) }}
+            </h2>
+
+        </div>
+
+
+        <div class="summary-card">
+
+            <div class="summary-card-icon">
+                ⚡
+            </div>
+
+            <span>
+                TOTAL ENERGY
+            </span>
+
+            <h2>
+                {{ "{:,.2f}".format(total_energy) }} kWh
+            </h2>
+
+        </div>
+
+
+    </div>
+
+
+    <!-- HIGHEST BILL -->
+
+    <div class="energy-card">
+
+        <h2>
+            🔥 Highest Predicted Bill
+        </h2>
+
+        <p>
+            Your highest electricity bill prediction recorded so far.
+        </p>
+
+
+        <div class="energy-highlight">
+
+            <div class="energy-highlight-icon">
+                💰
+            </div>
+
+            <div>
+
+                <h3>
+                    ₹{{ "{:,.2f}".format(highest_bill) }}
+                </h3>
+
+                <span>
+                    Highest predicted monthly bill
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    <!-- MONTHLY CHART -->
+
+    <div class="chart-card">
+
+        <div class="chart-header">
+
+            <h2>
+                📈 Month-wise Electricity Bill
+            </h2>
+
+            <p>
+                Your predicted bill across the months.
+            </p>
+
+        </div>
+
+
+        <div class="chart">
+
+            {% set max_bill = monthly_data
+                |map(attribute='bill')
+                |max %}
+
+            {% for item in monthly_data %}
+
+            <div class="bar-container">
+
+                {% if item.bill > 0 %}
+
+                <div class="bar-value">
+                    ₹{{ "{:,.0f}".format(item.bill) }}
+                </div>
+
+                {% endif %}
+
+
+                {% if max_bill > 0 %}
+
+                <div
+                    class="bar"
+                    style="height:
+                    {{ (item.bill / max_bill * 230)|round(0) }}px;">
+                </div>
+
+                {% else %}
+
+                <div
+                    class="bar"
+                    style="height: 3px;">
+                </div>
+
+                {% endif %}
+
+
+                <div class="bar-label">
+                    {{ item.month[:3] }}
+                </div>
+
+            </div>
+
+            {% endfor %}
+
+        </div>
+
+    </div>
+
+
+    <!-- ENERGY SUMMARY -->
+
+    <div class="energy-card">
+
+        <h2>
+            ⚡ Energy Consumption
+        </h2>
+
+        <p>
+            Total estimated electricity consumption across
+            your recorded predictions.
+        </p>
+
+
+        <div class="energy-highlight">
+
+            <div class="energy-highlight-icon">
+                ⚡
+            </div>
+
+            <div>
+
+                <h3>
+                    {{ "{:,.2f}".format(total_energy) }} kWh
+                </h3>
+
+                <span>
+                    Total estimated energy consumption
+                </span>
+
+            </div>
+
+        </div>
+
+    </div>
+
+
+    {% else %}
+
+
+    <!-- EMPTY STATE -->
+
+    <div class="empty-summary">
+
+        <div class="empty-summary-icon">
+            📊
+        </div>
+
+        <h2>
+            No Prediction Data Yet
+        </h2>
+
+        <p>
+            Make your first electricity bill prediction
+            to start building your yearly summary.
+        </p>
+
+        <br>
+
+        <a href="/" class="summary-button">
+            ⚡ Make First Prediction
+        </a>
+
+    </div>
+
+
+    {% endif %}
+
+
+</section>
+
+
+</body>
+
+</html>
