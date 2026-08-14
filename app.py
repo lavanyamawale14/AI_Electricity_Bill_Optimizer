@@ -2,7 +2,8 @@ from flask import Flask, request, jsonify, render_template, redirect, session
 import os
 import joblib
 import pandas as pd
-import sqlite3
+import psycopg2
+from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash, check_password_hash
 
 app = Flask(__name__)
@@ -19,19 +20,21 @@ model = joblib.load("models/electricity_bill_model.pkl")
 # =========================================================
 
 def get_db():
-    conn = sqlite3.connect("users.db")
-    conn.row_factory = sqlite3.Row
-    return conn
+    return psycopg2.connect(
+        os.environ.get("DATABASE_URL"),
+        cursor_factory=RealDictCursor
+    )
 
 
 def create_database():
 
     conn = get_db()
+    cursor = conn.cursor()
 
     # Users table
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS users (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             name TEXT NOT NULL,
             email TEXT UNIQUE NOT NULL,
             password TEXT NOT NULL
@@ -39,11 +42,11 @@ def create_database():
     """)
 
     # Prediction history table
-    conn.execute("""
+    cursor.execute("""
         CREATE TABLE IF NOT EXISTS predictions (
-            id INTEGER PRIMARY KEY AUTOINCREMENT,
+            id SERIAL PRIMARY KEY,
             user_id INTEGER NOT NULL,
-            prediction_date TEXT NOT NULL,
+            prediction_date TIMESTAMP NOT NULL,
             month INTEGER NOT NULL,
             city TEXT,
             company TEXT,
@@ -56,6 +59,7 @@ def create_database():
     """)
 
     conn.commit()
+    cursor.close()
     conn.close()
 
 
@@ -75,12 +79,15 @@ def login():
         password = request.form["password"]
 
         conn = get_db()
+        cursor = conn.cursor()
 
-        user = conn.execute(
-            "SELECT * FROM users WHERE email = ?",
+        cursor.execute(
+            "SELECT * FROM users WHERE email = %s",
             (email,)
-        ).fetchone()
+        )
+        user = cursor.fetchone()
 
+        cursor.close()
         conn.close()
 
         if user and check_password_hash(
@@ -128,14 +135,14 @@ def signup():
         hashed_password = generate_password_hash(password)
 
         try:
-
             conn = get_db()
+            cursor = conn.cursor()
 
-            conn.execute(
+            cursor.execute(
                 """
                 INSERT INTO users
                 (name, email, password)
-                VALUES (?, ?, ?)
+                VALUES (%s, %s, %s)
                 """,
                 (
                     name,
@@ -145,11 +152,15 @@ def signup():
             )
 
             conn.commit()
+            cursor.close()
             conn.close()
 
             return redirect("/login")
 
-        except sqlite3.IntegrityError:
+        except psycopg2.IntegrityError:
+            if 'conn' in locals():
+                conn.rollback()
+                conn.close()
 
             return render_template(
                 "signup.html",
@@ -373,8 +384,9 @@ def predict():
     from datetime import datetime
 
     conn = get_db()
+    cursor = conn.cursor()
 
-    conn.execute("""
+    cursor.execute("""
         INSERT INTO predictions (
             user_id,
             prediction_date,
@@ -386,10 +398,10 @@ def predict():
             highest_appliance,
             highest_energy
         )
-        VALUES (?, ?, ?, ?, ?, ?, ?, ?, ?)
+        VALUES (%s, %s, %s, %s, %s, %s, %s, %s, %s)
     """, (
         session["user_id"],
-        datetime.now().strftime("%Y-%m-%d %H:%M:%S"),
+        datetime.now(),
         data["Month"],
         data["City"],
         data["Company"],
@@ -400,6 +412,7 @@ def predict():
     ))
 
     conn.commit()
+    cursor.close()
     conn.close()
     return jsonify({
 
@@ -438,35 +451,38 @@ def history():
         return redirect("/login")
 
     conn = get_db()
+    cursor = conn.cursor()
 
     # =========================================
     # USER'S PREDICTION HISTORY
     # =========================================
 
-    predictions = conn.execute("""
+    cursor.execute("""
         SELECT *
         FROM predictions
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY prediction_date DESC
-    """, (session["user_id"],)).fetchall()
+    """, (session["user_id"],))
+    predictions = cursor.fetchall()
 
 
     # =========================================
     # YEARLY SUMMARY
     # =========================================
 
-    yearly_summary = conn.execute("""
+    cursor.execute("""
         SELECT
-            strftime('%Y', prediction_date) AS year,
+            EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
             COUNT(*) AS predictions,
             SUM(predicted_bill) AS total_bill,
             AVG(predicted_bill) AS average_bill,
             SUM(total_energy) AS total_energy
         FROM predictions
-        WHERE user_id = ?
-        GROUP BY strftime('%Y', prediction_date)
+        WHERE user_id = %s
+        GROUP BY EXTRACT(YEAR FROM prediction_date)
         ORDER BY year ASC
-    """, (session["user_id"],)).fetchall()
+    """, (session["user_id"],))
+    yearly_summary = cursor.fetchall()
 
 
     # =========================================
@@ -477,21 +493,22 @@ def history():
     # MONTHLY SUMMARY
     # =========================================
 
-    monthly_summary = conn.execute("""
+    cursor.execute("""
         SELECT
-            strftime('%Y', prediction_date) AS year,
+            EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
             month AS month_number,
             COUNT(*) AS predictions,
             SUM(predicted_bill) AS total_bill,
             AVG(predicted_bill) AS average_bill,
             SUM(total_energy) AS total_energy
         FROM predictions
-        WHERE user_id = ?
-        GROUP BY strftime('%Y', prediction_date), month
+        WHERE user_id = %s
+        GROUP BY EXTRACT(YEAR FROM prediction_date), month
         ORDER BY year ASC, month_number ASC
-    """, (session["user_id"],)).fetchall()
+    """, (session["user_id"],))
+    monthly_summary = cursor.fetchall()
 
-
+    cursor.close()
     conn.close()
 
 
@@ -589,14 +606,17 @@ def summary():
         return redirect("/login")
 
     conn = get_db()
+    cursor = conn.cursor()
 
-    predictions = conn.execute("""
+    cursor.execute("""
         SELECT *
         FROM predictions
-        WHERE user_id = ?
+        WHERE user_id = %s
         ORDER BY month ASC
-    """, (session["user_id"],)).fetchall()
+    """, (session["user_id"],))
+    predictions = cursor.fetchall()
 
+    cursor.close()
     conn.close()
 
     # No predictions yet
