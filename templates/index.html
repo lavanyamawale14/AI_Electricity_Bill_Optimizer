@@ -7,6 +7,18 @@
     <title>AI Electricity Bill Optimizer</title>
 
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
+    <style>
+/* VoltAI Energy Intelligence cards */
+.analysis-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; margin-bottom:30px; }
+.voltai-metric-card { display:flex; flex-direction:column; align-items:flex-start; gap:18px; min-width:0; padding:28px; background:linear-gradient(145deg,#10263b,#0c1c2e); border:1px solid rgba(148,163,184,.15); border-radius:22px; box-sizing:border-box; }
+.voltai-metric-card .analysis-summary-icon { width:58px; height:58px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:#173b57; border-radius:16px; font-size:26px; }
+.voltai-metric-card .analysis-summary-content { width:100%; min-width:0; }
+.voltai-metric-card .analysis-summary-content span { display:block; color:#91abc1; font-size:11px; font-weight:700; letter-spacing:1.4px; margin-bottom:12px; }
+.voltai-metric-card .analysis-summary-content h3 { color:#fff; font-size:clamp(22px,2.3vw,32px); font-weight:750; line-height:1.25; overflow-wrap:anywhere; margin:0 0 10px; }
+.voltai-metric-card .analysis-summary-content p { color:#91abc1; font-size:13px; line-height:1.6; margin:0; }
+@media(max-width:1000px) { .analysis-grid { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:650px) { .analysis-grid { grid-template-columns:1fr; } .voltai-metric-card { padding:22px; } }
+</style>
 </head>
 
 <body>
@@ -146,6 +158,69 @@
 
             <form id="predictionForm">
 
+<!-- HOUSEHOLD DETAILS -->
+<div class="form-section">
+
+    <div class="form-section-title">
+        <span class="section-icon">👨‍👩‍👧‍👦</span>
+
+        <div>
+            <h3>Household Details</h3>
+            <p>Tell us about the people living in your home</p>
+        </div>
+    </div>
+
+    <div class="input-grid">
+
+        <div class="input-group">
+            <label>👥 Family Size</label>
+            <input
+                type="number"
+                id="FamilySize"
+                value="4"
+                min="1"
+                required
+            >
+        </div>
+
+        <div class="input-group">
+            <label>🧑 Adults</label>
+            <input
+                type="number"
+                id="Adults"
+                value="2"
+                min="0"
+                required
+            >
+        </div>
+
+        <div class="input-group">
+            <label>🧒 Children</label>
+            <input
+                type="number"
+                id="Children"
+                value="1"
+                min="0"
+                required
+            >
+        </div>
+
+        <div class="input-group">
+            <label>👴 Senior Citizens</label>
+            <input
+                type="number"
+                id="SeniorCitizens"
+                value="1"
+                min="0"
+                required
+            >
+        </div>
+
+    </div>
+</div>
+
+
+
                 <!-- Appliances -->
                 <div class="form-section">
 
@@ -194,6 +269,77 @@
                     </div>
 
                 </div>
+
+
+<!-- Custom Appliances -->
+<div class="form-section">
+
+    <div class="form-section-title">
+        <span class="section-icon">➕</span>
+        <div>
+            <h3>Add Your Own Appliances</h3>
+            <p>Add any appliance not listed above</p>
+        </div>
+    </div>
+
+    <div id="customAppliancesContainer">
+        <!-- Custom appliance rows will appear here -->
+    </div>
+
+    <button type="button" id="addCustomAppliance"
+            class="add-appliance-btn">
+        + Add Appliance
+    </button>
+
+</div>
+
+
+
+<!-- GADGET DETAILS -->
+<div class="form-section">
+
+    <div class="form-section-title">
+        <span class="section-icon">📱</span>
+        <div>
+            <h3>Gadgets & Electronics</h3>
+            <p>Tell us how many personal electronic devices you own</p>
+        </div>
+    </div>
+
+    <div class="input-grid">
+
+        <div class="input-group">
+            <label>📱 Smartphones</label>
+            <input type="number" id="Smartphones"
+                   value="4" min="0" required>
+        </div>
+
+        <div class="input-group">
+            <label>💻 Laptops</label>
+            <input type="number" id="Laptops"
+                   value="2" min="0" required>
+        </div>
+
+        <div class="input-group">
+            <label>📲 Tablets</label>
+            <input type="number" id="Tablets"
+                   value="1" min="0" required>
+        </div>
+
+        <div class="input-group">
+            <label>📺 Smart TVs</label>
+            <input type="number" id="SmartTVs"
+                   value="1" min="0" required>
+        </div>
+
+        <div class="input-group">
+            <label>📡 Wi-Fi Routers</label>
+            <input type="number" id="WiFiRouters"
+                   value="1" min="0" required>
+        </div>
+
+    </div>
+</div>
 
 
                 <!-- Usage -->
@@ -582,54 +728,31 @@
 
 
     <div class="analysis-grid">
-
-        <!-- Total Energy -->
-
-        <div class="analysis-summary">
-
-            <div class="analysis-summary-icon">
-                ⚡
-            </div>
-
-            <div>
+        <div class="analysis-summary voltai-metric-card">
+            <div class="analysis-summary-icon">⚡</div>
+            <div class="analysis-summary-content">
                 <span>TOTAL ESTIMATED ENERGY</span>
-
-                <h3 id="totalEnergy">
-                    0 kWh
-                </h3>
-
-                <p>
-                    Estimated monthly consumption
-                </p>
+                <h3 id="totalEnergy">0 kWh</h3>
+                <p>Estimated monthly consumption</p>
             </div>
-
         </div>
-
-
-        <!-- Highest Appliance -->
-
-        <div class="analysis-summary">
-
-            <div class="analysis-summary-icon">
-                🔥
+        <div class="analysis-summary voltai-metric-card">
+            <div class="analysis-summary-icon">💰</div>
+            <div class="analysis-summary-content">
+                <span>ESTIMATED APPLIANCE COST</span>
+                <h3 id="estimatedApplianceCost">₹0.00</h3>
+                <p>Based on appliance energy usage and tariff</p>
             </div>
-
-            <div>
+        </div>
+        <div class="analysis-summary voltai-metric-card">
+            <div class="analysis-summary-icon">🔥</div>
+            <div class="analysis-summary-content">
                 <span>HIGHEST ENERGY APPLIANCE</span>
-
-                <h3 id="highestAppliance">
-                    —
-                </h3>
-
-                <p id="highestApplianceDetails">
-                    Run a prediction to see your highest consumer.
-                </p>
+                <h3 id="highestAppliance">—</h3>
+                <p id="highestApplianceDetails">Run a prediction to see your highest consumer.</p>
             </div>
-
         </div>
-
     </div>
-
 
     <!-- Appliance Breakdown -->
 
@@ -994,7 +1117,30 @@ form.addEventListener("submit", async function(event) {
             Number(document.getElementById("MonthlyHours").value),
 
         TariffRate:
-            Number(document.getElementById("TariffRate").value)
+            Number(document.getElementById("TariffRate").value),
+
+                    // Household Details
+        FamilySize: Number(document.getElementById("FamilySize").value),
+        Adults: Number(document.getElementById("Adults").value),
+        Children: Number(document.getElementById("Children").value),
+        SeniorCitizens: Number(document.getElementById("SeniorCitizens").value),
+
+        // Gadgets
+        Smartphones: Number(document.getElementById("Smartphones").value),
+        Laptops: Number(document.getElementById("Laptops").value),
+        Tablets: Number(document.getElementById("Tablets").value),
+        SmartTVs: Number(document.getElementById("SmartTVs").value),
+        WiFiRouters: Number(document.getElementById("WiFiRouters").value),
+
+        // Custom Appliances
+        custom_appliances: Array.from(
+            document.querySelectorAll(".custom-appliance-row")
+        ).map(row => ({
+            name: row.querySelector(".custom-name").value.trim(),
+            quantity: Number(row.querySelector(".custom-quantity").value),
+            watts: Number(row.querySelector(".custom-watts").value),
+            hours_per_day: Number(row.querySelector(".custom-hours").value)
+        }))
 
     };
 
@@ -1012,7 +1158,20 @@ form.addEventListener("submit", async function(event) {
 
         });
 
-        const result = await response.json();
+
+const result = await response.json();
+
+console.log("INPUT SENT TO FLASK:", data);
+console.log("FLASK RESPONSE:", result);
+
+if (!response.ok) {
+    throw new Error(result.error || "Prediction failed.");
+}
+
+if (typeof result.predicted_bill !== "number") {
+    throw new Error("Flask did not return a valid predicted bill.");
+}
+
 
         /* BILL */
 
@@ -1026,6 +1185,13 @@ form.addEventListener("submit", async function(event) {
 
         document.getElementById("totalEnergy").innerText =
             Number(result.total_energy).toLocaleString("en-IN") + " kWh";
+
+
+/* ESTIMATED APPLIANCE COST */
+
+document.getElementById("estimatedApplianceCost").innerText =
+    "₹" + Number(result.estimated_appliance_cost).toLocaleString("en-IN", {minimumFractionDigits: 2, maximumFractionDigits: 2});
+
 
 
         /* HIGHEST ENERGY APPLIANCE */
@@ -1198,6 +1364,88 @@ form.addEventListener("submit", async function(event) {
     `;
 
 });
+
+// CUSTOM APPLIANCE ADD FEATURE
+
+const customAppliancesContainer =
+    document.getElementById("customAppliancesContainer");
+
+const addCustomApplianceButton =
+    document.getElementById("addCustomAppliance");
+
+let customApplianceCount = 0;
+
+addCustomApplianceButton.addEventListener("click", function () {
+    customApplianceCount++;
+
+    const applianceRow = document.createElement("div");
+    applianceRow.className = "input-grid custom-appliance-row";
+
+    applianceRow.innerHTML = `
+        <div class="input-group">
+            <label>Appliance Name</label>
+            <input
+                type="text"
+                class="custom-name"
+                placeholder="e.g. Washing Machine"
+                required
+            >
+        </div>
+
+        <div class="input-group">
+            <label>Quantity</label>
+            <input
+                type="number"
+                class="custom-quantity"
+                value="1"
+                min="1"
+                required
+            >
+        </div>
+
+        <div class="input-group">
+            <label>Power (Watts)</label>
+            <input
+                type="number"
+                class="custom-watts"
+                placeholder="e.g. 500"
+                min="1"
+                required
+            >
+        </div>
+
+        <div class="input-group">
+            <label>Hours Used Per Day</label>
+            <input
+                type="number"
+                class="custom-hours"
+                placeholder="e.g. 2"
+                min="0"
+                max="24"
+                step="0.5"
+                required
+            >
+        </div>
+
+        <div class="input-group">
+            <button
+                type="button"
+                class="remove-appliance-btn"
+            >
+                🗑️ Remove Appliance
+            </button>
+        </div>
+    `;
+
+    customAppliancesContainer.appendChild(applianceRow);
+
+    applianceRow
+        .querySelector(".remove-appliance-btn")
+        .addEventListener("click", function () {
+            applianceRow.remove();
+        });
+});
+
 
 
     </script>
