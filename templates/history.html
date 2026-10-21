@@ -552,6 +552,29 @@
 
         }
 
+
+        .history-error {
+            max-width: 580px;
+            margin: 36px auto;
+            padding: 38px 28px;
+            text-align: center;
+            border-radius: 22px;
+            color: #fff;
+            background: rgba(255,255,255,.08);
+            border: 1px solid rgba(255,255,255,.18);
+            box-shadow: 0 15px 40px rgba(0,0,0,.15);
+            backdrop-filter: blur(10px);
+        }
+        .history-error h2 { margin: 12px 0; font-size: 26px; }
+        .history-error p { color: #d4d0e5; line-height: 1.6; }
+        .retry-button {
+            margin-top: 16px; padding: 13px 24px;
+            border: 0; border-radius: 10px; cursor: pointer;
+            color: #fff; font-weight: 700;
+            background: linear-gradient(135deg,#7c5cff,#5b8cff);
+        }
+        .retry-button:hover { filter: brightness(1.12); }
+
     </style>
 
 </head>
@@ -719,6 +742,16 @@
      BILL ANALYTICS
 ===================================================== -->
 
+{% if history_error %}
+    <section class="history-error" role="alert">
+        <div style="font-size:42px" aria-hidden="true">⚠️</div>
+        <h2>History Temporarily Unavailable</h2>
+        <p>We couldn't connect to the database right now. Your saved predictions have not been cleared. Please try again shortly.</p>
+        <form method="get" action="{{ url_for('history') }}">
+            <button type="submit" class="retry-button">↻ Retry Loading History</button>
+        </form>
+    </section>
+{% else %}
 <section class="bill-analytics">
 
     <div class="analytics-heading">
@@ -1074,8 +1107,11 @@
 
 </section>
 
+{% endif %}
+
 <!-- Chart.js -->
 
+{% if not history_error %}
 <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
 
 <script>
@@ -1084,34 +1120,18 @@
     // MONTHLY BILL DATA
     // =====================================================
 
-    const monthlyLabels = [
-        {% for item in monthly_summary %}
-            "{{ item['month_key'] }}"{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
+    const monthlyLabels = {{ chart_months | tojson }};
 
-    const monthlyBills = [
-        {% for item in monthly_summary %}
-            {{ item['total_bill'] or 0 }}{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
+    const monthlyBills = {{ monthly_bills | tojson }};
 
 
     // =====================================================
     // YEARLY BILL DATA
     // =====================================================
 
-    const yearlyLabels = [
-        {% for item in yearly_summary %}
-            "{{ item['year'] }}"{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
+    const yearlyLabels = {{ chart_years | tojson }};
 
-    const yearlyBills = [
-        {% for item in yearly_summary %}
-            {{ item['total_bill'] or 0 }}{% if not loop.last %},{% endif %}
-        {% endfor %}
-    ];
+    const yearlyBills = {{ yearly_bills | tojson }};
 
 
     // =====================================================
@@ -1248,6 +1268,7 @@
     });
 
 </script>
+{% endif %}
 </body>
 
 </html>

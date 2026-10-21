@@ -3,6 +3,7 @@ import os
 import joblib
 import pandas as pd
 import psycopg2
+import logging
 from psycopg2.extras import RealDictCursor
 from werkzeug.security import generate_password_hash, check_password_hash
 from dotenv import load_dotenv
@@ -11,6 +12,7 @@ from datetime import datetime
 load_dotenv()
 
 app = Flask(__name__)
+logger = logging.getLogger(__name__)
 
 # Secret key for login sessions
 app.secret_key = os.environ.get(
@@ -534,71 +536,80 @@ def history():
     if "user_id" not in session:
         return redirect("/login")
 
-    conn = get_db()
+    conn = None
     try:
-        cursor = conn.cursor()
+        conn = get_db()
+        with conn.cursor() as cursor:
 
-        cursor.execute("""
-                   SELECT *
-                   FROM predictions
-                   WHERE user_id = %s
-                   ORDER BY prediction_date DESC
-               """, (session["user_id"],))
-        predictions = cursor.fetchall()
+            cursor.execute("""
+                       SELECT *
+                       FROM predictions
+                       WHERE user_id = %s
+                       ORDER BY prediction_date DESC
+                   """, (session["user_id"],))
+            predictions = cursor.fetchall()
 
-        # One latest saved scenario per selected month and calendar year.
-        # Preserve all individual records in the Previous Predictions table.
-        cursor.execute("""
-            WITH latest_monthly AS (
-                SELECT DISTINCT ON (
-                    EXTRACT(YEAR FROM prediction_date), month
+            # One latest saved scenario per selected month and calendar year.
+            # Preserve all individual records in the Previous Predictions table.
+            cursor.execute("""
+                WITH latest_monthly AS (
+                    SELECT DISTINCT ON (
+                        EXTRACT(YEAR FROM prediction_date), month
+                    )
+                        EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
+                        month AS month_number,
+                        predicted_bill,
+                        total_energy
+                    FROM predictions
+                    WHERE user_id = %s
+                    ORDER BY EXTRACT(YEAR FROM prediction_date), month,
+                             prediction_date DESC, id DESC
                 )
-                    EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
-                    month AS month_number,
-                    predicted_bill,
-                    total_energy
-                FROM predictions
-                WHERE user_id = %s
-                ORDER BY EXTRACT(YEAR FROM prediction_date), month,
-                         prediction_date DESC, id DESC
-            )
-            SELECT year, month_number, 1 AS predictions,
-                   predicted_bill AS total_bill,
-                   predicted_bill AS average_bill,
-                   total_energy
-            FROM latest_monthly
-            ORDER BY year ASC, month_number ASC
-        """, (session["user_id"],))
-        monthly_summary = cursor.fetchall()
+                SELECT year, month_number, 1 AS predictions,
+                       predicted_bill AS total_bill,
+                       predicted_bill AS average_bill,
+                       total_energy
+                FROM latest_monthly
+                ORDER BY year ASC, month_number ASC
+            """, (session["user_id"],))
+            monthly_summary = cursor.fetchall()
 
-        # Sum only those latest monthly estimates, never every test scenario.
-        # These are projected totals, not actual paid electricity expenses.
-        cursor.execute("""
-            WITH latest_monthly AS (
-                SELECT DISTINCT ON (
-                    EXTRACT(YEAR FROM prediction_date), month
+            # Sum only those latest monthly estimates, never every test scenario.
+            # These are projected totals, not actual paid electricity expenses.
+            cursor.execute("""
+                WITH latest_monthly AS (
+                    SELECT DISTINCT ON (
+                        EXTRACT(YEAR FROM prediction_date), month
+                    )
+                        EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
+                        month,
+                        predicted_bill,
+                        total_energy
+                    FROM predictions
+                    WHERE user_id = %s
+                    ORDER BY EXTRACT(YEAR FROM prediction_date), month,
+                             prediction_date DESC, id DESC
                 )
-                    EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
-                    month,
-                    predicted_bill,
-                    total_energy
-                FROM predictions
-                WHERE user_id = %s
-                ORDER BY EXTRACT(YEAR FROM prediction_date), month,
-                         prediction_date DESC, id DESC
-            )
-            SELECT year,
-                   COUNT(*) AS predictions,
-                   SUM(predicted_bill) AS total_bill,
-                   AVG(predicted_bill) AS average_bill,
-                   SUM(total_energy) AS total_energy
-            FROM latest_monthly
-            GROUP BY year
-            ORDER BY year ASC
-        """, (session["user_id"],))
-        yearly_summary = cursor.fetchall()
+                SELECT year,
+                       COUNT(*) AS predictions,
+                       SUM(predicted_bill) AS total_bill,
+                       AVG(predicted_bill) AS average_bill,
+                       SUM(total_energy) AS total_energy
+                FROM latest_monthly
+                GROUP BY year
+                ORDER BY year ASC
+            """, (session["user_id"],))
+            yearly_summary = cursor.fetchall()
+    except psycopg2.Error:
+        logger.exception("History database query failed")
+        return render_template(
+            "history.html",
+            history_error=True,
+            user_name=session.get("user_name")
+        ), 503
     finally:
-        conn.close()
+        if conn is not None:
+            conn.close()
 
     month_names = {
         1: "January",
@@ -632,6 +643,7 @@ def history():
 
     return render_template(
         "history.html",
+        history_error=False,
         predictions=predictions,
         yearly_summary=yearly_summary,
         monthly_summary=monthly_summary,
@@ -744,3 +756,4 @@ def summary():
 
 if __name__ == "__main__":
     app.run(debug=True)
+
