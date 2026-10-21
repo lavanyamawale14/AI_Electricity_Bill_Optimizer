@@ -210,13 +210,13 @@ def predict():
             "TariffRate": data["TariffRate"]
         }])
 
-        prediction = float(model.predict(input_data)[0])
+        base_prediction = float(model.predict(input_data)[0])
 
 
         print("\n========== VOLTAI DEBUG ==========")
         print("INPUT DATA:")
         print(input_data.to_string(index=False))
-        print("MODEL PREDICTION:", prediction)
+        print("BASE MODEL PREDICTION:", base_prediction)
         print("==================================\n", flush=True)
 
 
@@ -334,6 +334,15 @@ def predict():
         # -----------------------------------
         total_energy = round(sum(energy_usage.values()), 2)
         estimated_appliance_cost = round(total_energy * tariff_rate, 2)
+
+        # Base ML prediction covers the original trained features except
+        # MotorPump, whose training values were all zero.
+        original_energy = sum(energy_usage.get(name, 0) for name in (
+            "Fan", "Refrigerator", "Air Conditioner", "Television", "Monitor"
+        ))
+        additional_energy = round(max(0, total_energy - original_energy), 2)
+        additional_cost = round(additional_energy * tariff_rate, 2)
+        prediction = round(max(0, base_prediction + additional_cost), 2)
 
         # -----------------------------------
         # ENERGY PERCENTAGES
@@ -498,7 +507,10 @@ def predict():
         # SEND RESULT TO FRONTEND
         # -----------------------------------
         return jsonify({
-            "predicted_bill": round(prediction, 2),
+            "predicted_bill": prediction,
+            "base_prediction": round(base_prediction, 2),
+            "additional_energy": additional_energy,
+            "additional_cost": additional_cost,
             "total_energy": total_energy,
             "estimated_appliance_cost": estimated_appliance_cost,
             "highest_appliance": highest_appliance,
@@ -534,36 +546,57 @@ def history():
                """, (session["user_id"],))
         predictions = cursor.fetchall()
 
-        # Yearly summary
+        # One latest saved scenario per selected month and calendar year.
+        # Preserve all individual records in the Previous Predictions table.
         cursor.execute("""
-                   SELECT
-                       EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
-                       COUNT(*) AS predictions,
-                       SUM(predicted_bill) AS total_bill,
-                       AVG(predicted_bill) AS average_bill,
-                       SUM(total_energy) AS total_energy
-                   FROM predictions
-                   WHERE user_id = %s
-                   GROUP BY EXTRACT(YEAR FROM prediction_date)
-                   ORDER BY year ASC
-               """, (session["user_id"],))
-        yearly_summary = cursor.fetchall()
-
-        # Monthly summary
-        cursor.execute("""
-                   SELECT
-                       EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
-                       month AS month_number,
-                       COUNT(*) AS predictions,
-                       SUM(predicted_bill) AS total_bill,
-                       AVG(predicted_bill) AS average_bill,
-                       SUM(total_energy) AS total_energy
-                   FROM predictions
-                   WHERE user_id = %s
-                   GROUP BY EXTRACT(YEAR FROM prediction_date), month
-                   ORDER BY year ASC, month_number ASC
-               """, (session["user_id"],))
+            WITH latest_monthly AS (
+                SELECT DISTINCT ON (
+                    EXTRACT(YEAR FROM prediction_date), month
+                )
+                    EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
+                    month AS month_number,
+                    predicted_bill,
+                    total_energy
+                FROM predictions
+                WHERE user_id = %s
+                ORDER BY EXTRACT(YEAR FROM prediction_date), month,
+                         prediction_date DESC, id DESC
+            )
+            SELECT year, month_number, 1 AS predictions,
+                   predicted_bill AS total_bill,
+                   predicted_bill AS average_bill,
+                   total_energy
+            FROM latest_monthly
+            ORDER BY year ASC, month_number ASC
+        """, (session["user_id"],))
         monthly_summary = cursor.fetchall()
+
+        # Sum only those latest monthly estimates, never every test scenario.
+        # These are projected totals, not actual paid electricity expenses.
+        cursor.execute("""
+            WITH latest_monthly AS (
+                SELECT DISTINCT ON (
+                    EXTRACT(YEAR FROM prediction_date), month
+                )
+                    EXTRACT(YEAR FROM prediction_date)::INTEGER AS year,
+                    month,
+                    predicted_bill,
+                    total_energy
+                FROM predictions
+                WHERE user_id = %s
+                ORDER BY EXTRACT(YEAR FROM prediction_date), month,
+                         prediction_date DESC, id DESC
+            )
+            SELECT year,
+                   COUNT(*) AS predictions,
+                   SUM(predicted_bill) AS total_bill,
+                   AVG(predicted_bill) AS average_bill,
+                   SUM(total_energy) AS total_energy
+            FROM latest_monthly
+            GROUP BY year
+            ORDER BY year ASC
+        """, (session["user_id"],))
+        yearly_summary = cursor.fetchall()
     finally:
         conn.close()
 
@@ -587,7 +620,7 @@ def history():
 
     for row in monthly_summary:
         month_number = int(row["month_number"])
-        chart_months.append(month_names[month_number])
+        chart_months.append(f"{month_names[month_number]} {row['year']}")
         monthly_bills.append(round(float(row["total_bill"] or 0), 2))
 
     chart_years = []

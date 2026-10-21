@@ -9,7 +9,7 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='css/style.css') }}">
     <style>
 /* VoltAI Energy Intelligence cards */
-.analysis-grid { display:grid; grid-template-columns:repeat(3,minmax(0,1fr)); gap:22px; margin-bottom:30px; }
+.analysis-grid { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:22px; margin-bottom:30px; }
 .voltai-metric-card { display:flex; flex-direction:column; align-items:flex-start; gap:18px; min-width:0; padding:28px; background:linear-gradient(145deg,#10263b,#0c1c2e); border:1px solid rgba(148,163,184,.15); border-radius:22px; box-sizing:border-box; }
 .voltai-metric-card .analysis-summary-icon { width:58px; height:58px; display:flex; align-items:center; justify-content:center; flex-shrink:0; background:#173b57; border-radius:16px; font-size:26px; }
 .voltai-metric-card .analysis-summary-content { width:100%; min-width:0; }
@@ -76,7 +76,7 @@
 
                 <div class="stat">
                     <strong>99.56%</strong>
-                    <span>Model Accuracy</span>
+                    <span>Original Model R²</span>
                 </div>
 
                 <div class="stat">
@@ -104,8 +104,8 @@
                     <span class="mini-icon">⚡</span>
                 </div>
 
-                <div class="fake-price">
-                    ₹3,477
+                <div class="fake-price" id="heroEstimatedBill">
+                    ₹—
                 </div>
 
                 <div class="fake-bar">
@@ -114,7 +114,7 @@
 
                 <div class="energy-card-bottom">
                     <span>AI Prediction</span>
-                    <span>● Live</span>
+                    <span>● Preview</span>
                 </div>
 
             </div>
@@ -694,7 +694,7 @@
                     </div>
 
                     <p>
-                        Based on your electricity usage and household details.
+                        Hybrid estimate: original ML prediction plus additional appliance usage.
                     </p>
 
                 </div>
@@ -734,14 +734,6 @@
                 <span>TOTAL ESTIMATED ENERGY</span>
                 <h3 id="totalEnergy">0 kWh</h3>
                 <p>Estimated monthly consumption</p>
-            </div>
-        </div>
-        <div class="analysis-summary voltai-metric-card">
-            <div class="analysis-summary-icon">💰</div>
-            <div class="analysis-summary-content">
-                <span>ESTIMATED APPLIANCE COST</span>
-                <h3 id="estimatedApplianceCost">₹0.00</h3>
-                <p>Based on appliance energy usage and tariff</p>
             </div>
         </div>
         <div class="analysis-summary voltai-metric-card">
@@ -1012,7 +1004,7 @@ function setupSearchDropdown(searchId, hiddenId, optionsId) {
 
     /* Search */
     searchInput.addEventListener("input", function () {
-
+        hiddenInput.value = "";
         const searchText = this.value.toLowerCase();
 
         optionsBox.style.display = "block";
@@ -1082,7 +1074,17 @@ form.addEventListener("submit", async function(event) {
     event.preventDefault();
 
     const button = document.querySelector(".predict-button");
-
+    const householdTotal = ["Adults", "Children", "SeniorCitizens"]
+        .reduce((sum, id) => sum + Number(document.getElementById(id).value), 0);
+    if (householdTotal !== Number(document.getElementById("FamilySize").value)) {
+        alert("Family Size must equal Adults + Children + Senior Citizens.");
+        return;
+    }
+    if (!document.getElementById("City").value || !document.getElementById("Company").value) {
+        alert("Please select a city and electricity company from the dropdown options.");
+        return;
+    }
+    button.disabled = true;
     button.innerHTML = "<span>⚡ Calculating...</span>";
 
     const data = {
@@ -1173,6 +1175,11 @@ if (typeof result.predicted_bill !== "number") {
 }
 
 
+        /* Combined final bill from Flask */
+        document.getElementById("heroEstimatedBill").textContent =
+            "₹" + Number(result.predicted_bill).toLocaleString("en-IN", {
+                minimumFractionDigits: 2, maximumFractionDigits: 2
+            });
         /* BILL */
 
         document.getElementById("predictedBill").innerText =
@@ -1185,13 +1192,6 @@ if (typeof result.predicted_bill !== "number") {
 
         document.getElementById("totalEnergy").innerText =
             Number(result.total_energy).toLocaleString("en-IN") + " kWh";
-
-
-/* ESTIMATED APPLIANCE COST */
-
-document.getElementById("estimatedApplianceCost").innerText =
-    "₹" + Number(result.estimated_appliance_cost).toLocaleString("en-IN", {minimumFractionDigits: 2, maximumFractionDigits: 2});
-
 
 
         /* HIGHEST ENERGY APPLIANCE */
@@ -1213,6 +1213,10 @@ document.getElementById("estimatedApplianceCost").innerText =
 
         breakdown.innerHTML = "";
 
+        const escapeHTML = value => String(value).replace(/[&<>"']/g, ch => ({
+            "&": "&amp;", "<": "&lt;", ">": "&gt;",
+            '"': "&quot;", "'": "&#39;"
+        }[ch]));
         const applianceIcons = {
 
             "Fan": "🌀",
@@ -1252,7 +1256,7 @@ document.getElementById("estimatedApplianceCost").innerText =
                             </span>
 
                             <span>
-                                ${appliance}
+                                ${escapeHTML(appliance)}
                             </span>
 
                         </div>
@@ -1305,18 +1309,18 @@ document.getElementById("estimatedApplianceCost").innerText =
 
                     <div class="recommendation-icon">
 
-                        ${recommendation.icon}
+                        ${escapeHTML(recommendation.icon)}
 
                     </div>
 
                     <div>
 
                         <h4>
-                            ${recommendation.title}
+                            ${escapeHTML(recommendation.title)}
                         </h4>
 
                         <p>
-                            ${recommendation.text}
+                            ${escapeHTML(recommendation.text)}
                         </p>
 
                     </div>
@@ -1343,14 +1347,13 @@ document.getElementById("estimatedApplianceCost").innerText =
 
     catch (error) {
 
-        alert(
-            "Something went wrong. Please make sure the Flask server is running."
-        );
+        alert(error.message || "Prediction failed. Please try again.");
 
         console.error(error);
 
     }
 
+    button.disabled = false;
     button.innerHTML = `
 
         <span>
